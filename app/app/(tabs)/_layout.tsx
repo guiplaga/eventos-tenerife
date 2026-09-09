@@ -10,6 +10,8 @@ export default function TabsLayout() {
         tabBarActiveTintColor: theme.colors.accent,
         tabBarInactiveTintColor: theme.colors.textMuted,
         tabBarStyle: { backgroundColor: theme.colors.background, borderTopColor: theme.colors.border },
+        tabBarShowLabel: false,
+        tabBarIconStyle: { marginTop: 4 },
       }}
     >
       <Tabs.Screen

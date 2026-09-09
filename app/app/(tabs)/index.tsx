@@ -127,6 +127,7 @@ export default function CalendarioScreen() {
             }}
           />
           <FlatList
+            style={styles.list}
             data={dayEvents}
             keyExtractor={(item) => item.id}
             renderItem={({ item }) => (
@@ -137,6 +138,7 @@ export default function CalendarioScreen() {
         </>
       ) : (
         <FlatList
+          style={styles.list}
           data={filteredEvents}
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => (
@@ -168,6 +170,7 @@ function makeStyles(theme: Theme) {
       paddingVertical: spacing.sm + 4,
     },
     headerTitle: { fontSize: 22, fontWeight: "700", color: theme.colors.textPrimary },
+    list: { flex: 1 },
     toggleButton: { flexDirection: "row", alignItems: "center", gap: spacing.xs },
     toggleLabel: { color: theme.colors.accent, fontWeight: "600" },
     errorText: { fontWeight: "600", color: theme.colors.textPrimary },

@@ -124,6 +124,7 @@ function FavoritesList() {
         </Pressable>
       </View>
       <FlatList
+        style={{ flex: 1 }}
         data={events}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (

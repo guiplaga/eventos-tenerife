@@ -14,7 +14,12 @@ export function MunicipalityChips({
   const styles = makeStyles(theme);
   if (municipalities.length === 0) return null;
   return (
-    <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.row}>
+    <ScrollView
+      horizontal
+      showsHorizontalScrollIndicator={false}
+      style={styles.scroll}
+      contentContainerStyle={styles.row}
+    >
       <Chip theme={theme} label="Toda la isla" active={selected === null} onPress={() => onSelect(null)} />
       {municipalities.map((m) => (
         <Chip
@@ -50,13 +55,21 @@ function Chip({
 
 function makeStyles(theme: Theme) {
   return StyleSheet.create({
-    row: { paddingHorizontal: spacing.md, paddingTop: spacing.sm, gap: spacing.sm },
+    scroll: { flexGrow: 0, flexShrink: 0 },
+    row: {
+      paddingHorizontal: spacing.md,
+      paddingTop: spacing.sm,
+      paddingBottom: spacing.xs,
+      gap: spacing.sm,
+      alignItems: "center",
+    },
     chip: {
       paddingHorizontal: spacing.sm + 4,
       paddingVertical: spacing.xs + 2,
       borderRadius: radius.pill,
       borderWidth: 1,
       borderColor: theme.colors.accent,
+      alignSelf: "flex-start",
     },
     chipActive: { backgroundColor: theme.colors.accent },
     chipLabel: { fontSize: 12, color: theme.colors.accent, fontWeight: "500" },

@@ -90,7 +90,7 @@ export default function BuscarScreen() {
           <EventListItem event={item} onPress={() => router.push(`/evento/${item.id}`)} />
         )}
         ListEmptyComponent={<EmptyState icon="search-outline" message="No hay eventos que coincidan." />}
-        style={{ marginTop: spacing.xs }}
+        style={{ flex: 1, marginTop: spacing.xs }}
       />
     </SafeAreaView>
   );
