@@ -11,9 +11,11 @@ import {
   Alert,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useLocalSearchParams, Stack } from "expo-router";
+import { useLocalSearchParams, useRouter, Stack } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { supabase } from "../../lib/supabase";
+import { useAuth } from "../../lib/auth";
+import { addFavorite, removeFavorite } from "../../lib/favorites";
 import { CATEGORY_LABELS } from "../../lib/types";
 import type { EventRowWithSource } from "../../lib/types";
 
@@ -37,9 +39,13 @@ function formatWhen(startAt: string, endAt: string | null, allDay: boolean): str
 
 export default function EventoDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
+  const router = useRouter();
+  const { session } = useAuth();
   const [event, setEvent] = useState<EventRowWithSource | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isFavorite, setIsFavorite] = useState(false);
+  const [savingFavorite, setSavingFavorite] = useState(false);
 
   useEffect(() => {
     if (!id) return;
@@ -56,6 +62,44 @@ export default function EventoDetailScreen() {
         setLoading(false);
       });
   }, [id]);
+
+  useEffect(() => {
+    if (!id || !session) {
+      setIsFavorite(false);
+      return;
+    }
+    supabase
+      .from("favorites")
+      .select("event_id")
+      .eq("event_id", id)
+      .maybeSingle()
+      .then(({ data }) => setIsFavorite(Boolean(data)));
+  }, [id, session]);
+
+  async function toggleFavorite() {
+    if (!event) return;
+    if (!session) {
+      Alert.alert("Inicia sesión", "Para guardar eventos primero inicia sesión en la pestaña Favoritos.", [
+        { text: "Cancelar", style: "cancel" },
+        { text: "Ir a Favoritos", onPress: () => router.push("/favoritos") },
+      ]);
+      return;
+    }
+    setSavingFavorite(true);
+    try {
+      if (isFavorite) {
+        await removeFavorite(event.id);
+        setIsFavorite(false);
+      } else {
+        await addFavorite(event, session.user.id);
+        setIsFavorite(true);
+      }
+    } catch (err) {
+      Alert.alert("Error", err instanceof Error ? err.message : "No se pudo guardar.");
+    } finally {
+      setSavingFavorite(false);
+    }
+  }
 
   if (loading) {
     return (
@@ -131,22 +175,34 @@ export default function EventoDetailScreen() {
         </View>
       </ScrollView>
 
-      <View style={styles.footer}>
-        {event.ticket_required && event.ticket_url ? (
-          <Pressable style={styles.primaryButton} onPress={() => Linking.openURL(event.ticket_url!)}>
+      <View style={[styles.footer, styles.footerRow]}>
+        {event.ticket_required && event.ticket_url && (
+          <Pressable
+            style={[styles.primaryButton, { flex: 1 }]}
+            onPress={() => Linking.openURL(event.ticket_url!)}
+          >
             <Text style={styles.primaryButtonText}>
               Comprar entrada{event.price_from != null ? ` · desde ${event.price_from} €` : ""}
             </Text>
           </Pressable>
-        ) : (
-          <Pressable
-            style={styles.secondaryButton}
-            onPress={() => Alert.alert("Próximamente", "Guardar favoritos llega en una fase posterior.")}
-          >
-            <Ionicons name="heart-outline" size={18} color="#0071CE" />
-            <Text style={styles.secondaryButtonText}>Guardar</Text>
-          </Pressable>
         )}
+        <Pressable
+          style={[
+            styles.secondaryButton,
+            !(event.ticket_required && event.ticket_url) && { flex: 1 },
+          ]}
+          onPress={toggleFavorite}
+          disabled={savingFavorite}
+        >
+          {savingFavorite ? (
+            <ActivityIndicator color="#0071CE" />
+          ) : (
+            <>
+              <Ionicons name={isFavorite ? "heart" : "heart-outline"} size={18} color="#0071CE" />
+              <Text style={styles.secondaryButtonText}>{isFavorite ? "Guardado" : "Guardar"}</Text>
+            </>
+          )}
+        </Pressable>
       </View>
     </>
   );
@@ -179,6 +235,7 @@ const styles = StyleSheet.create({
     borderTopColor: "#E2E2E2",
     backgroundColor: "#FFFFFF",
   },
+  footerRow: { flexDirection: "row", gap: 10 },
   primaryButton: {
     backgroundColor: "#0071CE",
     borderRadius: 12,
@@ -193,6 +250,7 @@ const styles = StyleSheet.create({
     borderColor: "#0071CE",
     borderRadius: 12,
     paddingVertical: 14,
+    paddingHorizontal: 18,
     alignItems: "center",
     justifyContent: "center",
   },

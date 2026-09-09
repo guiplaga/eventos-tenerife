@@ -54,6 +54,14 @@ Definidas en `ingest/src/types.ts`. La app (Fase 4) usa el mismo union type.
       descripcion, enlace a la fuente original, y boton principal: "Comprar entrada" (abre `ticket_url`)
       o "Guardar" (placeholder, favoritos reales en Fase 6). Verificado con un evento con entrada y
       otro sin ella; navegacion ida y vuelta sin errores de consola.
+- [x] **Fase 6** — busqueda (texto + categoria + municipio, `app/(tabs)/buscar.tsx`), Auth de Supabase
+      con email/contraseña (no Apple Sign-In: requiere cuenta de Apple Developer y solo se puede
+      probar en dispositivo real, no en este entorno), favoritos sincronizados (tabla `favorites` +
+      RLS ya existente desde la Fase 1) y recordatorio local la vispera a las 10:00
+      (`expo-notifications`, solo Android/iOS -- no soportado en web). Verificado de punta a punta:
+      login, guardar/quitar favorito desde el detalle, aparece/desaparece en la pestaña Favoritos,
+      cerrar sesion. Los recordatorios no se han podido verificar visualmente (requieren dispositivo
+      real).
 
 ## Correr la app
 
