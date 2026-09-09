@@ -31,11 +31,16 @@ npx supabase db push
 npx supabase db execute -f seed.sql --linked
 ```
 
-Copia `SUPABASE_URL` y la `anon public key` (Project Settings > API) a `.env` en la raiz del repo
-(ver `.env.example`). La `service_role key` es solo para el worker de `/ingest` — nunca va en la app.
+Copia `SUPABASE_URL` y la **`publishable` key** (Project Settings > API Keys — no la pestaña "Legacy
+API Keys") a `.env` en la raiz del repo (ver `.env.example`). La **`secret` key** es solo para el
+worker de `/ingest` — nunca va en la app ni en el chat, cópiala directo del dashboard a `.env`.
+
+(Supabase esta migrando del formato antiguo `anon`/`service_role` JWT al nuevo `publishable`/`secret`.
+Se comportan igual a efectos de RLS: `publishable` la respeta, `secret` la ignora — como antes
+`anon`/`service_role`. Usa las nuevas salvo que el proyecto sea antiguo y solo tenga las legacy.)
 
 ## Verificar que RLS funciona
 
-Con la `anon key` (la que usara la app), una consulta a `events` debe devolver 8 filas, no 9 — el
-evento `seed-009-sin-revisar` debe quedar oculto por la politica `events_public_read`. Con la
-`service_role key` (o desde el Table Editor) deben verse las 9.
+Con la `publishable` key (la que usara la app), una consulta a `events` debe devolver 8 filas, no 9 —
+el evento `seed-009-sin-revisar` debe quedar oculto por la politica `events_public_read`. Con la
+`secret` key (o desde el Table Editor) deben verse las 9.

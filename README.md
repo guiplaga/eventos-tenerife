@@ -24,11 +24,16 @@ Definidas en `ingest/src/types.ts`. La app (Fase 4) usa el mismo union type.
 
 - [x] **Fase 0** — Repo, estructura de carpetas, app Expo arrancando (verificado en modo web), worker
       de ingesta con dependencias instaladas.
-- [x] **Fase 1 (SQL lista, sin aplicar)** — migraciones de `venues`/`sources`/`events`/`favorites` +
-      RLS + `seed.sql` con 8 eventos de prueba. Ver [`supabase/README.md`](supabase/README.md) para
-      los pasos pendientes (crear el proyecto en supabase.com, `supabase link`, `supabase db push`) —
-      requieren tu cuenta, no las puedo hacer yo.
-- [ ] Fase 2 — primer conector de ingesta (datos.canarias.es).
+- [x] **Fase 1** — proyecto Supabase real creado, migraciones aplicadas (`venues`/`sources`/`events`/`favorites`
+      + RLS) y 8 eventos de prueba cargados. Verificado: la API REST con `publishable` key devuelve 8
+      eventos (RLS oculta el 9º, sin revisar); con `secret` key devuelve los 9.
+- [x] **Fase 2** — `datos.canarias.es` descartado (CSV completo confirmado muerto: 5 filas totales,
+      todas de 2021-2022). Primer conector real: **webtenerife.com** (`ingest/src/connectors/webtenerife.ts`),
+      vía el endpoint JSON `pagecatalogueapi` que usa la propia web. Corrido contra el proyecto real:
+      20 eventos insertados, categorizados y geolocalizados a municipio automaticamente, todos con
+      `reviewed=false` (ocultos en la app publica hasta revision humana). Idempotente: segunda
+      ejecucion no duplica ni pisa el estado de revision.
+- [ ] Fase 3 — segundo conector de scraping + cron en GitHub Actions.
 
 ## Correr la app
 
@@ -36,6 +41,16 @@ Definidas en `ingest/src/types.ts`. La app (Fase 4) usa el mismo union type.
 cd ingest && npm install   # si no lo has hecho
 cd ../app && npx expo start --web    # o `npx expo start` + Expo Go en un iPhone real
 ```
+
+## Correr la ingesta
+
+```bash
+cd ingest
+SUPABASE_URL=... SUPABASE_SECRET_KEY=... npx tsx src/index.ts
+```
+
+Los eventos nuevos entran con `reviewed=false` — hay que revisarlos en el Table Editor de Supabase
+(corregir categoria/municipio si la heuristica se equivoco) antes de que la app publica los muestre.
 
 ## Supabase
 
