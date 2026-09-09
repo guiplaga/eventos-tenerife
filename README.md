@@ -33,9 +33,26 @@ Definidas en `ingest/src/types.ts`. La app (Fase 4) usa el mismo union type.
       20 eventos insertados, categorizados y geolocalizados a municipio automaticamente, todos con
       `reviewed=false` (ocultos en la app publica hasta revision humana). Idempotente: segunda
       ejecucion no duplica ni pisa el estado de revision.
-- [ ] Fase 3 — segundo conector de scraping + cron en GitHub Actions.
+- [x] **Fase 3** — Tomaticket descartado (Cloudflare anti-bot) y el sistema de venta del Auditorio
+      (Koobin) tambien bloquea peticiones automatizadas; ninguno de los dos se intenta esquivar.
+      Segundo conector real: `canariasEvents.ts` (extrae JSON embebido en el HTML de canarias.events,
+      con municipio y `ticket_url` ya resueltos). 91 eventos nuevos insertados; 7 duplicados cruzados
+      con webtenerife detectados y reportados (todos correctamente a favor de la fuente con
+      `ticket_url`, sin fusion automatica — lo decide quien revisa). Cron diario en
+      `.github/workflows/ingest.yml` (05:00 UTC + disparo manual). **Pendiente de ti:** anadir los
+      secrets `SUPABASE_URL`/`SUPABASE_SECRET_KEY` en GitHub (Settings > Secrets and variables >
+      Actions) para que el cron funcione — no hay `gh` CLI instalado aqui para hacerlo yo.
+- [x] **Fase 4** — navegacion con Expo Router: tabs Calendario/Buscar/Favoritos (`app/app/(tabs)/`).
+      Calendario con `react-native-calendars` (mes con puntos en dias con eventos + lista del dia
+      seleccionado), toggle mes/lista, chips de categoria. Datos reales desde Supabase (respeta RLS:
+      solo eventos `reviewed=true`). Verificado en el navegador (modo web): fetch, filtro por
+      categoria, toggle de vista y las 3 tabs funcionan sin errores de consola. Buscar/Favoritos son
+      placeholders (logica real en Fase 6).
 
 ## Correr la app
+
+Necesita `app/.env` (ver `app/.env.example`) con `EXPO_PUBLIC_SUPABASE_URL` y
+`EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY` — mismos valores que el `.env` raiz.
 
 ```bash
 cd ingest && npm install   # si no lo has hecho
