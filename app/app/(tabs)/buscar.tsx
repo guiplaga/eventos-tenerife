@@ -64,6 +64,7 @@ export default function BuscarScreen() {
 
   return (
     <SafeAreaView style={styles.container} edges={["top"]}>
+      <Text style={styles.title}>Buscar</Text>
       <View style={styles.searchBar}>
         <Ionicons name="search" size={18} color={theme.colors.textMuted} />
         <TextInput
@@ -100,6 +101,13 @@ function makeStyles(theme: Theme) {
   return StyleSheet.create({
     container: { flex: 1, backgroundColor: theme.colors.background },
     center: { flex: 1, alignItems: "center", justifyContent: "center", backgroundColor: theme.colors.background },
+    title: {
+      fontSize: 22,
+      fontWeight: "700",
+      color: theme.colors.textPrimary,
+      paddingHorizontal: spacing.md,
+      paddingTop: spacing.sm + 4,
+    },
     searchBar: {
       flexDirection: "row",
       alignItems: "center",
