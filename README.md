@@ -48,6 +48,12 @@ Definidas en `ingest/src/types.ts`. La app (Fase 4) usa el mismo union type.
       solo eventos `reviewed=true`). Verificado en el navegador (modo web): fetch, filtro por
       categoria, toggle de vista y las 3 tabs funcionan sin errores de consola. Buscar/Favoritos son
       placeholders (logica real en Fase 6).
+- [x] **Fase 5** — pantalla de detalle (`app/app/evento/[id].tsx`): imagen, categoria, fecha/hora,
+      municipio con enlace "Ver en el mapa" (Google Maps, solo si la fuente dio lat/lng — se añadieron
+      columnas `lat`/`lng` a `events` porque webtenerife las tenia y se estaban descartando),
+      descripcion, enlace a la fuente original, y boton principal: "Comprar entrada" (abre `ticket_url`)
+      o "Guardar" (placeholder, favoritos reales en Fase 6). Verificado con un evento con entrada y
+      otro sin ella; navegacion ida y vuelta sin errores de consola.
 
 ## Correr la app
 

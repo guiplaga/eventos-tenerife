@@ -6,6 +6,7 @@ export default function RootLayout() {
     <>
       <Stack screenOptions={{ headerShown: false }}>
         <Stack.Screen name="(tabs)" />
+        <Stack.Screen name="evento/[id]" options={{ headerShown: true, headerBackTitle: "Atrás" }} />
       </Stack>
       <StatusBar style="auto" />
     </>

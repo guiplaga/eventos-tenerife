@@ -24,6 +24,8 @@ export interface NormalizedEvent {
   allDay: boolean;
   venueName: string | null;
   municipality: string | null;
+  lat: number | null;
+  lng: number | null;
   imageUrl: string | null;
   sourceUrl: string;
   ticketRequired: boolean;

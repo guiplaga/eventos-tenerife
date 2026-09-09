@@ -22,12 +22,19 @@ export interface EventRow {
   end_at: string | null;
   all_day: boolean;
   municipality: string | null;
+  lat: number | null;
+  lng: number | null;
   image_url: string | null;
   source_url: string;
   ticket_required: boolean;
   ticket_url: string | null;
   price_from: number | null;
   status: EventStatus;
+}
+
+// Version con el nombre de la fuente (join a `sources`), usada en el detalle.
+export interface EventRowWithSource extends EventRow {
+  sources: { nombre: string } | null;
 }
 
 export const CATEGORY_LABELS: Record<Category, string> = {

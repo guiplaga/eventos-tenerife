@@ -3,6 +3,7 @@ import { View, Text, FlatList, StyleSheet, Pressable, ActivityIndicator } from "
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Calendar, type DateData } from "react-native-calendars";
 import { Ionicons } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
 import { supabase } from "../../lib/supabase";
 import type { Category, EventRow } from "../../lib/types";
 import { CategoryChips } from "../../components/CategoryChips";
@@ -15,6 +16,7 @@ function todayIso(): string {
 }
 
 export default function CalendarioScreen() {
+  const router = useRouter();
   const [events, setEvents] = useState<EventRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -26,7 +28,7 @@ export default function CalendarioScreen() {
     supabase
       .from("events")
       .select(
-        "id, title, description, category, start_at, end_at, all_day, municipality, image_url, source_url, ticket_required, ticket_url, price_from, status",
+        "id, title, description, category, start_at, end_at, all_day, municipality, lat, lng, image_url, source_url, ticket_required, ticket_url, price_from, status",
       )
       .order("start_at", { ascending: true })
       .then(({ data, error: fetchError }) => {
@@ -103,7 +105,9 @@ export default function CalendarioScreen() {
           <FlatList
             data={dayEvents}
             keyExtractor={(item) => item.id}
-            renderItem={({ item }) => <EventListItem event={item} />}
+            renderItem={({ item }) => (
+              <EventListItem event={item} onPress={() => router.push(`/evento/${item.id}`)} />
+            )}
             ListEmptyComponent={
               <Text style={styles.emptyText}>No hay eventos este día.</Text>
             }
@@ -113,7 +117,9 @@ export default function CalendarioScreen() {
         <FlatList
           data={filteredEvents}
           keyExtractor={(item) => item.id}
-          renderItem={({ item }) => <EventListItem event={item} />}
+          renderItem={({ item }) => (
+            <EventListItem event={item} onPress={() => router.push(`/evento/${item.id}`)} />
+          )}
           ListEmptyComponent={<Text style={styles.emptyText}>No hay eventos próximamente.</Text>}
         />
       )}

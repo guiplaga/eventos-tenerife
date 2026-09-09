@@ -79,6 +79,8 @@ export const webtenerifeConnector: Connector<WebtenerifeRawItem> = {
       allDay: false,
       venueName: null,
       municipality: nearestMunicipio(lat, lng),
+      lat: Number.isNaN(lat) ? null : lat,
+      lng: Number.isNaN(lng) ? null : lng,
       imageUrl: raw.Image || null,
       sourceUrl: raw.Url,
       ticketRequired: false,

@@ -89,6 +89,8 @@ export const canariasEventsConnector: Connector<CanariasEventsRawItem> = {
       allDay: true, // la fuente solo da fecha, sin hora
       venueName: orNull(raw.location?.venue),
       municipality: orNull(raw.location?.municipality),
+      lat: null, // la fuente no da coordenadas, solo municipio/venue como texto
+      lng: null,
       imageUrl: orNull(raw.imageUrl),
       sourceUrl: orNull(raw.detailsUrl) ?? `https://canarias.events/es/tenerife/event/${raw.slug}/`,
       ticketRequired: Boolean(ticketUrl) && !raw.isFree,
