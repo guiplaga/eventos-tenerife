@@ -8,6 +8,8 @@ import { supabase } from "../../lib/supabase";
 import type { Category, EventRow } from "../../lib/types";
 import { CategoryChips } from "../../components/CategoryChips";
 import { EventListItem } from "../../components/EventListItem";
+import { EmptyState } from "../../components/EmptyState";
+import { useTheme, spacing, type Theme } from "../../lib/theme";
 
 type ViewMode = "calendario" | "lista";
 
@@ -17,6 +19,8 @@ function todayIso(): string {
 
 export default function CalendarioScreen() {
   const router = useRouter();
+  const theme = useTheme();
+  const styles = makeStyles(theme);
   const [events, setEvents] = useState<EventRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -49,13 +53,16 @@ export default function CalendarioScreen() {
     const marks: Record<string, { marked: true; dotColor: string }> = {};
     for (const event of filteredEvents) {
       const day = event.start_at.slice(0, 10);
-      marks[day] = { marked: true, dotColor: "#0071CE" };
+      marks[day] = { marked: true, dotColor: theme.colors.accent };
     }
     return {
       ...marks,
-      [selectedDate]: { ...(marks[selectedDate] ?? { marked: false, dotColor: "#0071CE" }), selected: true },
+      [selectedDate]: {
+        ...(marks[selectedDate] ?? { marked: false, dotColor: theme.colors.accent }),
+        selected: true,
+      },
     };
-  }, [filteredEvents, selectedDate]);
+  }, [filteredEvents, selectedDate, theme.colors.accent]);
 
   const dayEvents = useMemo(
     () => filteredEvents.filter((e) => e.start_at.slice(0, 10) === selectedDate),
@@ -65,7 +72,7 @@ export default function CalendarioScreen() {
   if (loading) {
     return (
       <SafeAreaView style={styles.center}>
-        <ActivityIndicator size="large" color="#0071CE" />
+        <ActivityIndicator size="large" color={theme.colors.accent} />
       </SafeAreaView>
     );
   }
@@ -73,8 +80,9 @@ export default function CalendarioScreen() {
   if (error) {
     return (
       <SafeAreaView style={styles.center}>
+        <Ionicons name="cloud-offline-outline" size={32} color={theme.colors.textMuted} />
         <Text style={styles.errorText}>No se pudieron cargar los eventos.</Text>
-        <Text style={styles.errorDetail}>{error}</Text>
+        <Text style={styles.errorDetail}>Revisa tu conexión e inténtalo de nuevo.</Text>
       </SafeAreaView>
     );
   }
@@ -87,7 +95,11 @@ export default function CalendarioScreen() {
           style={styles.toggleButton}
           onPress={() => setViewMode(viewMode === "calendario" ? "lista" : "calendario")}
         >
-          <Ionicons name={viewMode === "calendario" ? "list" : "calendar"} size={18} color="#0071CE" />
+          <Ionicons
+            name={viewMode === "calendario" ? "list" : "calendar"}
+            size={18}
+            color={theme.colors.accent}
+          />
           <Text style={styles.toggleLabel}>{viewMode === "calendario" ? "Lista" : "Calendario"}</Text>
         </Pressable>
       </View>
@@ -97,10 +109,22 @@ export default function CalendarioScreen() {
       {viewMode === "calendario" ? (
         <>
           <Calendar
+            key={theme.dark ? "dark" : "light"}
             current={selectedDate}
             markedDates={markedDates}
             onDayPress={(day: DateData) => setSelectedDate(day.dateString)}
-            theme={{ todayTextColor: "#0071CE", selectedDayBackgroundColor: "#0071CE", dotColor: "#0071CE" }}
+            theme={{
+              calendarBackground: theme.colors.background,
+              dayTextColor: theme.colors.textPrimary,
+              monthTextColor: theme.colors.textPrimary,
+              textSectionTitleColor: theme.colors.textMuted,
+              textDisabledColor: theme.colors.border,
+              arrowColor: theme.colors.accent,
+              todayTextColor: theme.colors.accent,
+              selectedDayBackgroundColor: theme.colors.accent,
+              selectedDayTextColor: theme.colors.accentContrast,
+              dotColor: theme.colors.accent,
+            }}
           />
           <FlatList
             data={dayEvents}
@@ -108,9 +132,7 @@ export default function CalendarioScreen() {
             renderItem={({ item }) => (
               <EventListItem event={item} onPress={() => router.push(`/evento/${item.id}`)} />
             )}
-            ListEmptyComponent={
-              <Text style={styles.emptyText}>No hay eventos este día.</Text>
-            }
+            ListEmptyComponent={<EmptyState icon="calendar-clear-outline" message="No hay eventos este día." />}
           />
         </>
       ) : (
@@ -120,27 +142,35 @@ export default function CalendarioScreen() {
           renderItem={({ item }) => (
             <EventListItem event={item} onPress={() => router.push(`/evento/${item.id}`)} />
           )}
-          ListEmptyComponent={<Text style={styles.emptyText}>No hay eventos próximamente.</Text>}
+          ListEmptyComponent={<EmptyState icon="calendar-clear-outline" message="No hay eventos próximamente." />}
         />
       )}
     </SafeAreaView>
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#FFFFFF" },
-  center: { flex: 1, alignItems: "center", justifyContent: "center", gap: 8, padding: 24 },
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-  },
-  headerTitle: { fontSize: 22, fontWeight: "700" },
-  toggleButton: { flexDirection: "row", alignItems: "center", gap: 4 },
-  toggleLabel: { color: "#0071CE", fontWeight: "600" },
-  emptyText: { textAlign: "center", color: "#8A8A8A", marginTop: 24 },
-  errorText: { fontWeight: "600" },
-  errorDetail: { color: "#8A8A8A", fontSize: 13, textAlign: "center" },
-});
+function makeStyles(theme: Theme) {
+  return StyleSheet.create({
+    container: { flex: 1, backgroundColor: theme.colors.background },
+    center: {
+      flex: 1,
+      alignItems: "center",
+      justifyContent: "center",
+      gap: spacing.sm,
+      padding: spacing.lg,
+      backgroundColor: theme.colors.background,
+    },
+    header: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "space-between",
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.sm + 4,
+    },
+    headerTitle: { fontSize: 22, fontWeight: "700", color: theme.colors.textPrimary },
+    toggleButton: { flexDirection: "row", alignItems: "center", gap: spacing.xs },
+    toggleLabel: { color: theme.colors.accent, fontWeight: "600" },
+    errorText: { fontWeight: "600", color: theme.colors.textPrimary },
+    errorDetail: { color: theme.colors.textMuted, fontSize: 13, textAlign: "center" },
+  });
+}

@@ -18,6 +18,7 @@ import { useAuth } from "../../lib/auth";
 import { addFavorite, removeFavorite } from "../../lib/favorites";
 import { CATEGORY_LABELS } from "../../lib/types";
 import type { EventRowWithSource } from "../../lib/types";
+import { useTheme, spacing, radius, type Theme } from "../../lib/theme";
 
 function formatWhen(startAt: string, endAt: string | null, allDay: boolean): string {
   const start = new Date(startAt);
@@ -41,6 +42,8 @@ export default function EventoDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const { session } = useAuth();
+  const theme = useTheme();
+  const styles = makeStyles(theme);
   const [event, setEvent] = useState<EventRowWithSource | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -104,7 +107,7 @@ export default function EventoDetailScreen() {
   if (loading) {
     return (
       <SafeAreaView style={styles.center}>
-        <ActivityIndicator size="large" color="#0071CE" />
+        <ActivityIndicator size="large" color={theme.colors.accent} />
       </SafeAreaView>
     );
   }
@@ -112,7 +115,8 @@ export default function EventoDetailScreen() {
   if (error || !event) {
     return (
       <SafeAreaView style={styles.center}>
-        <Text>No se pudo cargar el evento.</Text>
+        <Ionicons name="alert-circle-outline" size={32} color={theme.colors.textMuted} />
+        <Text style={styles.errorText}>No se pudo cargar el evento.</Text>
       </SafeAreaView>
     );
   }
@@ -125,12 +129,12 @@ export default function EventoDetailScreen() {
   return (
     <>
       <Stack.Screen options={{ title: "", headerTransparent: true, headerTintColor: "#fff" }} />
-      <ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: 32 }}>
+      <ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: spacing.xl }}>
         {event.image_url ? (
           <Image source={{ uri: event.image_url }} style={styles.image} />
         ) : (
           <View style={[styles.image, styles.imagePlaceholder]}>
-            <Ionicons name="image-outline" size={48} color="#B0B0B0" />
+            <Ionicons name="image-outline" size={48} color={theme.colors.textMuted} />
           </View>
         )}
 
@@ -147,13 +151,13 @@ export default function EventoDetailScreen() {
           )}
 
           <View style={styles.row}>
-            <Ionicons name="calendar-outline" size={18} color="#6B6B6B" />
+            <Ionicons name="calendar-outline" size={18} color={theme.colors.textSecondary} />
             <Text style={styles.rowText}>{formatWhen(event.start_at, event.end_at, event.all_day)}</Text>
           </View>
 
           {event.municipality && (
             <View style={styles.row}>
-              <Ionicons name="location-outline" size={18} color="#6B6B6B" />
+              <Ionicons name="location-outline" size={18} color={theme.colors.textSecondary} />
               <Text style={styles.rowText}>{event.municipality}</Text>
               {mapsUrl && (
                 <Pressable onPress={() => Linking.openURL(mapsUrl)}>
@@ -195,10 +199,10 @@ export default function EventoDetailScreen() {
           disabled={savingFavorite}
         >
           {savingFavorite ? (
-            <ActivityIndicator color="#0071CE" />
+            <ActivityIndicator color={theme.colors.accent} />
           ) : (
             <>
-              <Ionicons name={isFavorite ? "heart" : "heart-outline"} size={18} color="#0071CE" />
+              <Ionicons name={isFavorite ? "heart" : "heart-outline"} size={18} color={theme.colors.accent} />
               <Text style={styles.secondaryButtonText}>{isFavorite ? "Guardado" : "Guardar"}</Text>
             </>
           )}
@@ -208,51 +212,60 @@ export default function EventoDetailScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#FFFFFF" },
-  center: { flex: 1, alignItems: "center", justifyContent: "center" },
-  image: { width: "100%", height: 260, backgroundColor: "#E8E8E8" },
-  imagePlaceholder: { alignItems: "center", justifyContent: "center" },
-  body: { padding: 20, gap: 10 },
-  category: { color: "#0071CE", fontWeight: "700", fontSize: 13, textTransform: "uppercase" },
-  title: { fontSize: 26, fontWeight: "700" },
-  statusBadge: {
-    alignSelf: "flex-start",
-    backgroundColor: "#FDECEC",
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 100,
-  },
-  statusBadgeText: { color: "#C0392B", fontWeight: "600", fontSize: 12 },
-  row: { flexDirection: "row", alignItems: "center", gap: 8, flexWrap: "wrap" },
-  rowText: { fontSize: 15, color: "#3C3C3C" },
-  link: { color: "#0071CE", fontWeight: "600", fontSize: 14 },
-  description: { fontSize: 15, lineHeight: 22, color: "#3C3C3C", marginTop: 8 },
-  sourceLink: { color: "#0071CE", marginTop: 8, fontSize: 13 },
-  footer: {
-    padding: 16,
-    borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: "#E2E2E2",
-    backgroundColor: "#FFFFFF",
-  },
-  footerRow: { flexDirection: "row", gap: 10 },
-  primaryButton: {
-    backgroundColor: "#0071CE",
-    borderRadius: 12,
-    paddingVertical: 14,
-    alignItems: "center",
-  },
-  primaryButtonText: { color: "#FFFFFF", fontWeight: "700", fontSize: 16 },
-  secondaryButton: {
-    flexDirection: "row",
-    gap: 6,
-    borderWidth: 1,
-    borderColor: "#0071CE",
-    borderRadius: 12,
-    paddingVertical: 14,
-    paddingHorizontal: 18,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  secondaryButtonText: { color: "#0071CE", fontWeight: "700", fontSize: 16 },
-});
+function makeStyles(theme: Theme) {
+  return StyleSheet.create({
+    container: { flex: 1, backgroundColor: theme.colors.background },
+    center: {
+      flex: 1,
+      alignItems: "center",
+      justifyContent: "center",
+      gap: spacing.sm,
+      backgroundColor: theme.colors.background,
+    },
+    errorText: { color: theme.colors.textPrimary },
+    image: { width: "100%", height: 260, backgroundColor: theme.colors.surface },
+    imagePlaceholder: { alignItems: "center", justifyContent: "center" },
+    body: { padding: spacing.md + 4, gap: spacing.sm + 2 },
+    category: { color: theme.colors.accent, fontWeight: "700", fontSize: 13, textTransform: "uppercase" },
+    title: { fontSize: 26, fontWeight: "700", color: theme.colors.textPrimary },
+    statusBadge: {
+      alignSelf: "flex-start",
+      backgroundColor: theme.colors.dangerSurface,
+      paddingHorizontal: spacing.sm + 2,
+      paddingVertical: spacing.xs,
+      borderRadius: radius.pill,
+    },
+    statusBadgeText: { color: theme.colors.danger, fontWeight: "600", fontSize: 12 },
+    row: { flexDirection: "row", alignItems: "center", gap: spacing.sm, flexWrap: "wrap" },
+    rowText: { fontSize: 15, color: theme.colors.textPrimary },
+    link: { color: theme.colors.accent, fontWeight: "600", fontSize: 14 },
+    description: { fontSize: 15, lineHeight: 22, color: theme.colors.textPrimary, marginTop: spacing.xs },
+    sourceLink: { color: theme.colors.accent, marginTop: spacing.xs, fontSize: 13 },
+    footer: {
+      padding: spacing.md,
+      borderTopWidth: StyleSheet.hairlineWidth,
+      borderTopColor: theme.colors.border,
+      backgroundColor: theme.colors.background,
+    },
+    footerRow: { flexDirection: "row", gap: spacing.sm + 2 },
+    primaryButton: {
+      backgroundColor: theme.colors.accent,
+      borderRadius: radius.md,
+      paddingVertical: spacing.sm + 6,
+      alignItems: "center",
+    },
+    primaryButtonText: { color: theme.colors.accentContrast, fontWeight: "700", fontSize: 16 },
+    secondaryButton: {
+      flexDirection: "row",
+      gap: spacing.xs + 2,
+      borderWidth: 1,
+      borderColor: theme.colors.accent,
+      borderRadius: radius.md,
+      paddingVertical: spacing.sm + 6,
+      paddingHorizontal: spacing.md + 2,
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    secondaryButtonText: { color: theme.colors.accent, fontWeight: "700", fontSize: 16 },
+  });
+}

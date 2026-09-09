@@ -1,4 +1,5 @@
 import { ScrollView, Pressable, Text, StyleSheet } from "react-native";
+import { useTheme, spacing, radius, type Theme } from "../lib/theme";
 
 export function MunicipalityChips({
   municipalities,
@@ -9,18 +10,37 @@ export function MunicipalityChips({
   selected: string | null;
   onSelect: (municipality: string | null) => void;
 }) {
+  const theme = useTheme();
+  const styles = makeStyles(theme);
   if (municipalities.length === 0) return null;
   return (
     <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.row}>
-      <Chip label="Toda la isla" active={selected === null} onPress={() => onSelect(null)} />
+      <Chip theme={theme} label="Toda la isla" active={selected === null} onPress={() => onSelect(null)} />
       {municipalities.map((m) => (
-        <Chip key={m} label={m} active={selected === m} onPress={() => onSelect(selected === m ? null : m)} />
+        <Chip
+          key={m}
+          theme={theme}
+          label={m}
+          active={selected === m}
+          onPress={() => onSelect(selected === m ? null : m)}
+        />
       ))}
     </ScrollView>
   );
 }
 
-function Chip({ label, active, onPress }: { label: string; active: boolean; onPress: () => void }) {
+function Chip({
+  theme,
+  label,
+  active,
+  onPress,
+}: {
+  theme: Theme;
+  label: string;
+  active: boolean;
+  onPress: () => void;
+}) {
+  const styles = makeStyles(theme);
   return (
     <Pressable style={[styles.chip, active && styles.chipActive]} onPress={onPress}>
       <Text style={[styles.chipLabel, active && styles.chipLabelActive]}>{label}</Text>
@@ -28,16 +48,18 @@ function Chip({ label, active, onPress }: { label: string; active: boolean; onPr
   );
 }
 
-const styles = StyleSheet.create({
-  row: { paddingHorizontal: 16, paddingTop: 8, gap: 8 },
-  chip: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 100,
-    borderWidth: 1,
-    borderColor: "#0071CE",
-  },
-  chipActive: { backgroundColor: "#0071CE" },
-  chipLabel: { fontSize: 12, color: "#0071CE", fontWeight: "500" },
-  chipLabelActive: { color: "#FFFFFF" },
-});
+function makeStyles(theme: Theme) {
+  return StyleSheet.create({
+    row: { paddingHorizontal: spacing.md, paddingTop: spacing.sm, gap: spacing.sm },
+    chip: {
+      paddingHorizontal: spacing.sm + 4,
+      paddingVertical: spacing.xs + 2,
+      borderRadius: radius.pill,
+      borderWidth: 1,
+      borderColor: theme.colors.accent,
+    },
+    chipActive: { backgroundColor: theme.colors.accent },
+    chipLabel: { fontSize: 12, color: theme.colors.accent, fontWeight: "500" },
+    chipLabelActive: { color: theme.colors.accentContrast },
+  });
+}

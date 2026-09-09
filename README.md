@@ -62,6 +62,13 @@ Definidas en `ingest/src/types.ts`. La app (Fase 4) usa el mismo union type.
       login, guardar/quitar favorito desde el detalle, aparece/desaparece en la pestaña Favoritos,
       cerrar sesion. Los recordatorios no se han podido verificar visualmente (requieren dispositivo
       real).
+- [x] **Fase 7** — sistema de diseño centralizado (`lib/theme.ts`): color de acento unico, colores
+      discretos por categoria (tintado sutil en los iconos de `EventListItem`), rejilla de 8pt,
+      **modo oscuro completo** (incluye el tema de `react-native-calendars`, que por defecto no lo
+      soporta), y componente `EmptyState` compartido para los estados vacios de las 3 listas. Dynamic
+      Type no requirio trabajo extra: React Native lo respeta por defecto salvo que se desactive
+      explicitamente, y no se ha desactivado en ningun `Text`. Verificado en claro y oscuro
+      (`resize_window` + recarga) en las 4 pantallas principales.
 
 ## Correr la app
 

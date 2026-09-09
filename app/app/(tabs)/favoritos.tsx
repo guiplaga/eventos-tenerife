@@ -14,9 +14,13 @@ import { useRouter, useFocusEffect } from "expo-router";
 import { supabase } from "../../lib/supabase";
 import { useAuth } from "../../lib/auth";
 import { EventListItem } from "../../components/EventListItem";
+import { EmptyState } from "../../components/EmptyState";
+import { useTheme, spacing, radius, type Theme } from "../../lib/theme";
 import type { EventRow } from "../../lib/types";
 
 function AuthForm() {
+  const theme = useTheme();
+  const styles = makeStyles(theme);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [mode, setMode] = useState<"login" | "signup">("login");
@@ -43,6 +47,7 @@ function AuthForm() {
       <TextInput
         style={styles.input}
         placeholder="Email"
+        placeholderTextColor={theme.colors.textMuted}
         autoCapitalize="none"
         keyboardType="email-address"
         value={email}
@@ -51,13 +56,14 @@ function AuthForm() {
       <TextInput
         style={styles.input}
         placeholder="Contraseña"
+        placeholderTextColor={theme.colors.textMuted}
         secureTextEntry
         value={password}
         onChangeText={setPassword}
       />
       <Pressable style={styles.primaryButton} onPress={handleSubmit} disabled={submitting}>
         {submitting ? (
-          <ActivityIndicator color="#FFFFFF" />
+          <ActivityIndicator color={theme.colors.accentContrast} />
         ) : (
           <Text style={styles.primaryButtonText}>
             {mode === "login" ? "Iniciar sesión" : "Crear cuenta"}
@@ -75,6 +81,8 @@ function AuthForm() {
 
 function FavoritesList() {
   const router = useRouter();
+  const theme = useTheme();
+  const styles = makeStyles(theme);
   const [events, setEvents] = useState<EventRow[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -102,7 +110,7 @@ function FavoritesList() {
   if (loading) {
     return (
       <View style={styles.center}>
-        <ActivityIndicator size="large" color="#0071CE" />
+        <ActivityIndicator size="large" color={theme.colors.accent} />
       </View>
     );
   }
@@ -122,9 +130,10 @@ function FavoritesList() {
           <EventListItem event={item} onPress={() => router.push(`/evento/${item.id}`)} />
         )}
         ListEmptyComponent={
-          <Text style={styles.emptyText}>
-            Aún no tienes eventos guardados. Ábrelos desde el calendario y toca "Guardar".
-          </Text>
+          <EmptyState
+            icon="heart-outline"
+            message='Aún no tienes eventos guardados. Ábrelos desde el calendario y toca "Guardar".'
+          />
         }
       />
     </>
@@ -132,13 +141,15 @@ function FavoritesList() {
 }
 
 export default function FavoritosScreen() {
+  const theme = useTheme();
+  const styles = makeStyles(theme);
   const { session, loading } = useAuth();
 
   return (
     <SafeAreaView style={styles.container} edges={["top"]}>
       {loading ? (
         <View style={styles.center}>
-          <ActivityIndicator size="large" color="#0071CE" />
+          <ActivityIndicator size="large" color={theme.colors.accent} />
         </View>
       ) : session ? (
         <FavoritesList />
@@ -149,35 +160,37 @@ export default function FavoritosScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#FFFFFF" },
-  center: { flex: 1, alignItems: "center", justifyContent: "center" },
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-  },
-  authContainer: { flex: 1, justifyContent: "center", padding: 24, gap: 12 },
-  title: { fontSize: 22, fontWeight: "700" },
-  subtitle: { color: "#8A8A8A", marginBottom: 8 },
-  input: {
-    borderWidth: 1,
-    borderColor: "#D8D8D8",
-    borderRadius: 10,
-    paddingHorizontal: 14,
-    paddingVertical: 12,
-    fontSize: 15,
-  },
-  primaryButton: {
-    backgroundColor: "#0071CE",
-    borderRadius: 12,
-    paddingVertical: 14,
-    alignItems: "center",
-    marginTop: 4,
-  },
-  primaryButtonText: { color: "#FFFFFF", fontWeight: "700", fontSize: 16 },
-  link: { color: "#0071CE", fontWeight: "600", textAlign: "center" },
-  emptyText: { textAlign: "center", color: "#8A8A8A", marginTop: 24, paddingHorizontal: 24 },
-});
+function makeStyles(theme: Theme) {
+  return StyleSheet.create({
+    container: { flex: 1, backgroundColor: theme.colors.background },
+    center: { flex: 1, alignItems: "center", justifyContent: "center" },
+    header: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "space-between",
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.sm + 4,
+    },
+    authContainer: { flex: 1, justifyContent: "center", padding: spacing.lg, gap: spacing.sm + 4 },
+    title: { fontSize: 22, fontWeight: "700", color: theme.colors.textPrimary },
+    subtitle: { color: theme.colors.textMuted, marginBottom: spacing.sm },
+    input: {
+      borderWidth: 1,
+      borderColor: theme.colors.border,
+      borderRadius: radius.sm + 2,
+      paddingHorizontal: spacing.sm + 6,
+      paddingVertical: spacing.sm + 4,
+      fontSize: 15,
+      color: theme.colors.textPrimary,
+    },
+    primaryButton: {
+      backgroundColor: theme.colors.accent,
+      borderRadius: radius.md,
+      paddingVertical: spacing.sm + 6,
+      alignItems: "center",
+      marginTop: spacing.xs,
+    },
+    primaryButtonText: { color: theme.colors.accentContrast, fontWeight: "700", fontSize: 16 },
+    link: { color: theme.colors.accent, fontWeight: "600", textAlign: "center" },
+  });
+}

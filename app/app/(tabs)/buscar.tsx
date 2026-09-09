@@ -8,6 +8,8 @@ import type { Category, EventRow } from "../../lib/types";
 import { CategoryChips } from "../../components/CategoryChips";
 import { MunicipalityChips } from "../../components/MunicipalityChips";
 import { EventListItem } from "../../components/EventListItem";
+import { EmptyState } from "../../components/EmptyState";
+import { useTheme, spacing, radius, type Theme } from "../../lib/theme";
 
 function stripAccents(s: string): string {
   return s.normalize("NFD").replace(/[̀-ͯ]/g, "");
@@ -15,6 +17,8 @@ function stripAccents(s: string): string {
 
 export default function BuscarScreen() {
   const router = useRouter();
+  const theme = useTheme();
+  const styles = makeStyles(theme);
   const [events, setEvents] = useState<EventRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [query, setQuery] = useState("");
@@ -53,7 +57,7 @@ export default function BuscarScreen() {
   if (loading) {
     return (
       <SafeAreaView style={styles.center}>
-        <ActivityIndicator size="large" color="#0071CE" />
+        <ActivityIndicator size="large" color={theme.colors.accent} />
       </SafeAreaView>
     );
   }
@@ -61,10 +65,11 @@ export default function BuscarScreen() {
   return (
     <SafeAreaView style={styles.container} edges={["top"]}>
       <View style={styles.searchBar}>
-        <Ionicons name="search" size={18} color="#8A8A8A" />
+        <Ionicons name="search" size={18} color={theme.colors.textMuted} />
         <TextInput
           style={styles.searchInput}
           placeholder="Buscar eventos..."
+          placeholderTextColor={theme.colors.textMuted}
           value={query}
           onChangeText={setQuery}
           autoCapitalize="none"
@@ -84,28 +89,29 @@ export default function BuscarScreen() {
         renderItem={({ item }) => (
           <EventListItem event={item} onPress={() => router.push(`/evento/${item.id}`)} />
         )}
-        ListEmptyComponent={<Text style={styles.emptyText}>No hay eventos que coincidan.</Text>}
-        style={{ marginTop: 8 }}
+        ListEmptyComponent={<EmptyState icon="search-outline" message="No hay eventos que coincidan." />}
+        style={{ marginTop: spacing.xs }}
       />
     </SafeAreaView>
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#FFFFFF" },
-  center: { flex: 1, alignItems: "center", justifyContent: "center" },
-  searchBar: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-    marginHorizontal: 16,
-    marginTop: 12,
-    marginBottom: 12,
-    paddingHorizontal: 14,
-    paddingVertical: 10,
-    borderRadius: 10,
-    backgroundColor: "#F0F0F0",
-  },
-  searchInput: { flex: 1, fontSize: 16 },
-  emptyText: { textAlign: "center", color: "#8A8A8A", marginTop: 24 },
-});
+function makeStyles(theme: Theme) {
+  return StyleSheet.create({
+    container: { flex: 1, backgroundColor: theme.colors.background },
+    center: { flex: 1, alignItems: "center", justifyContent: "center", backgroundColor: theme.colors.background },
+    searchBar: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: spacing.sm,
+      marginHorizontal: spacing.md,
+      marginTop: spacing.sm + 4,
+      marginBottom: spacing.sm + 4,
+      paddingHorizontal: spacing.sm + 6,
+      paddingVertical: spacing.sm + 2,
+      borderRadius: radius.sm + 2,
+      backgroundColor: theme.colors.surface,
+    },
+    searchInput: { flex: 1, fontSize: 16, color: theme.colors.textPrimary },
+  });
+}
