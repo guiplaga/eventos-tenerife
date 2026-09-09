@@ -37,6 +37,7 @@ export interface NormalizedEvent {
 // normalize() traduce su formato crudo al modelo comun.
 export interface Connector<TRaw = unknown> {
   name: string;
+  sourceUrlBase: string;
   fetch(): Promise<TRaw[]>;
   normalize(raw: TRaw): NormalizedEvent;
 }

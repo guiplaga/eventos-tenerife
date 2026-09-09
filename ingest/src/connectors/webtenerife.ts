@@ -48,6 +48,7 @@ async function fetchPage(pageIndex: number): Promise<WebtenerifeResponse> {
 
 export const webtenerifeConnector: Connector<WebtenerifeRawItem> = {
   name: "webtenerife",
+  sourceUrlBase: "https://www.webtenerife.com",
 
   async fetch() {
     const first = await fetchPage(1);
