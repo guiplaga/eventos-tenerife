@@ -167,6 +167,13 @@ export default function EventoDetailScreen() {
             </View>
           )}
 
+          {event.ticket_required && event.price_from != null && (
+            <View style={styles.row}>
+              <Ionicons name="pricetag-outline" size={18} color={theme.colors.textSecondary} />
+              <Text style={styles.rowText}>Desde {event.price_from} €</Text>
+            </View>
+          )}
+
           {event.description && <Text style={styles.description}>{event.description}</Text>}
 
           {event.source_url && (
@@ -185,8 +192,8 @@ export default function EventoDetailScreen() {
             style={[styles.primaryButton, { flex: 1 }]}
             onPress={() => Linking.openURL(event.ticket_url!)}
           >
-            <Text style={styles.primaryButtonText}>
-              Comprar entrada{event.price_from != null ? ` · desde ${event.price_from} €` : ""}
+            <Text style={styles.primaryButtonText} numberOfLines={1}>
+              Comprar entrada
             </Text>
           </Pressable>
         )}
@@ -251,8 +258,9 @@ function makeStyles(theme: Theme) {
     primaryButton: {
       backgroundColor: theme.colors.accent,
       borderRadius: radius.md,
-      paddingVertical: spacing.sm + 6,
+      minHeight: 52,
       alignItems: "center",
+      justifyContent: "center",
     },
     primaryButtonText: { color: theme.colors.accentContrast, fontWeight: "700", fontSize: 16 },
     secondaryButton: {
@@ -261,7 +269,7 @@ function makeStyles(theme: Theme) {
       borderWidth: 1,
       borderColor: theme.colors.accent,
       borderRadius: radius.md,
-      paddingVertical: spacing.sm + 6,
+      minHeight: 52,
       paddingHorizontal: spacing.md + 2,
       alignItems: "center",
       justifyContent: "center",
